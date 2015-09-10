@@ -5,7 +5,7 @@ import os
 import urllib
 from robobrowser import RoboBrowser
 
-page_sum = 10  #设置下载页数
+page_sum = 50  #设置下载页数
 
 path = os.getcwd()
 path = os.path.join(path,'暴走GIF')
@@ -22,16 +22,20 @@ headers = {                                         #伪装浏览器
 browser = RoboBrowser(history=True,user_agent='Mozilla/5.0 ... Safari/537.36')
 
 for count in range(page_sum):
-    browser.open(url+str(count+1),method='get',headers=headers)
+    try:
+        browser.open(url+str(count+1),method='get',headers=headers)
+    except Exception:
+        continue
+
     if browser.response.status_code is not 200:
-        break
+        continue
     else:
         img_content = browser.find_all('img',attrs={'style':'width:460px'})
         url_list = [img['src'] for img in img_content]      #列表推导 url
         title_list = [img['alt'] for img in img_content]    #图片名称
-
+        print("count:"+str(count))
         for i in range(url_list.__len__()) :
             imgurl = url_list[i]
             filename = path.decode('utf-8') + os.sep.decode('utf-8') + title_list[i] + ".gif"
             print(filename+":"+imgurl)                         #打印下载信息
-            urllib.urlretrieve(imgurl,filename)        #下载图片
+            urllib.urlretrieve(imgurl,filename)                #下载图片
